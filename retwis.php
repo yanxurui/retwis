@@ -1,12 +1,16 @@
-<?
+<?php
 require 'Predis/Autoloader.php';
 Predis\Autoloader::register();
 
+//It doesn't work on windows
+// function getrand() {
+//     $fd = fopen("/dev/urandom","r");
+//     $data = fread($fd,16);
+//     fclose($fd);
+//     return md5($data);
+// }
 function getrand() {
-    $fd = fopen("/dev/urandom","r");
-    $data = fread($fd,16);
-    fclose($fd);
-    return md5($data);
+    return md5(rand(),true);
 }
 
 function isLoggedIn() {

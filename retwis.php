@@ -105,9 +105,9 @@ function showPost($id) {
     return true;
 }
 
-function showUserPosts($userid,$start,$count) {
+function showUserPosts($userid,$start,$count,$self=false) {
     $r = redisLink();
-    $key = ($userid == -1) ? "timeline" : "posts:$userid";
+    $key=$userid==-1?'timeline':($self?"posts_self:$userid":"posts:$userid");
     $posts = $r->lrange($key,$start,$start+$count);
     $c = 0;
     foreach($posts as $p) {
@@ -117,7 +117,7 @@ function showUserPosts($userid,$start,$count) {
     return count($posts) == $count+1;
 }
 
-function showUserPostsWithPagination($username,$userid,$start,$count) {
+function showUserPostsWithPagination($username,$userid,$start,$count,$self=false) {
     global $_SERVER;
     $thispage = $_SERVER['PHP_SELF'];
 
@@ -128,7 +128,7 @@ function showUserPostsWithPagination($username,$userid,$start,$count) {
     if ($prev < 0) $prev = 0;
 
     $u = $username ? "&u=".urlencode($username) : "";
-    if (showUserPosts($userid,$start,$count))
+    if (showUserPosts($userid,$start,$count,$self))
         $nextlink = "<a href=\"$thispage?start=$next".$u."\">Older posts &raquo;</a>";
     if ($start > 0) {
         $prevlink = "<a href=\"$thispage?start=$prev".$u."\">&laquo; Newer posts</a>".($nextlink ? " | " : "");

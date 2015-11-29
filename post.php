@@ -12,7 +12,7 @@ $status = str_replace("\n"," ",gt("status"));
 $r->hmset("post:$postid","user_id",$User['id'],"time",time(),"body",$status);
 $followers = $r->zrange("followers:".$User['id'],0,-1);
 $followers[] = $User['id']; /* Add the post to our own posts too */
-
+$r->lpush("posts_self:".$User['id'],$postid);
 foreach($followers as $fid) {
     $r->lpush("posts:$fid",$postid);
 }

@@ -24,7 +24,8 @@ $r->hmset("user:$userid",
     "auth",$authsecret);
 $r->hset("auths",$authsecret,$userid);
 
-$r->zadd("users_by_time",time(),$username);
+# username may change.
+$r->zadd("users_by_time",time(),$userid);
 
 # User registered! Login her / him.
 setcookie("auth",$authsecret,time()+3600*24*365);

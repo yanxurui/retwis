@@ -140,11 +140,25 @@ function showUserPostsWithPagination($username,$userid,$start,$count,$self=false
 function showLastUsers() {
     $r = redisLink();
     $users = $r->zrevrange("users_by_time",0,9);
-    echo("<div>");
-    foreach($users as $u) {
-        echo("<a class=\"username\" href=\"profile.php?u=".urlencode($u)."\">".utf8entities($u)."</a> ");
-    }
-    echo("</div><br>");
+    showUsers($users);
 }
 
+function showUsers($userid_arr)
+{
+    $r = redisLink();
+    echo("<table>");
+    echo("<tr>");
+    $i = 0;
+    foreach($userid_arr as $userid) {
+        if ($i!=0 && $i % 8 == 0) {
+            echo("</tr>");
+            echo("<tr>");
+        }
+        $username = $r->hget("user:$userid","username");
+        echo("<td><a class=\"username\" href=\"profile.php?u=".urlencode($username)."\">".utf8entities($username)."</a></td>");
+        $i ++;
+    }
+    echo("</tr>");
+    echo("</table>");
+}
 ?>

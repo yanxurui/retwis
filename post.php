@@ -1,15 +1,18 @@
 <?php
 include("retwis.php");
 
-if (!isLoggedIn() || !gt("status")) {
+if (!isLoggedIn() || !gt("body")) {
     header("Location:index.php");
     exit;
 }
 
 $r = redisLink();
 $postid = $r->incr("next_post_id");
-$status = str_replace("\n"," ",gt("status"));
-$r->hmset("post:$postid","user_id",$User['id'],"time",time(),"body",$status);
+$body = str_replace("\n"," ",gt("body"));
+$ref=-1;
+if(gt("postid"))//repost
+	$ref=gt("postid");
+$r->hmset("post:$postid","user_id",$User['id'],"time",time(),"body",$body,"ref",$ref);
 $followers = $r->zrange("followers:".$User['id'],0,-1);
 $followers[] = $User['id']; /* Add the post to our own posts too */
 $r->lpush("posts_self:".$User['id'],$postid);

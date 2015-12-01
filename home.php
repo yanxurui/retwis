@@ -12,7 +12,7 @@ $r = redisLink();
 <?php echo utf8entities($User['username'])?>, what you are doing?
 <br>
 <table>
-<tr><td><textarea cols="70" rows="3" name="status"></textarea></td></tr>
+<tr><td><textarea cols="70" rows="3" name="body"></textarea></td></tr>
 <tr><td align="right"><input type="submit" name="doit" value="Update"></td></tr>
 </table>
 </form>

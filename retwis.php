@@ -89,6 +89,19 @@ function strElapsed($t) {
     $d = (int)($d/(3600*24));
     return "$d day".($d > 1 ? "s" : "");
 }
+function showComments($postid) {
+    $r = redisLink();
+    $comments = $r->lrange("comments:".$postid, 0, -1);
+    foreach($comments as $cid) {
+        $content = $r->hgetall("comment:".$cid);
+        $userid = $content['user_id'];
+        $username = $r->hget("user:$userid","username");
+        $elapsed = strElapsed($content['time']);
+        $userlink = "<a class=\"username\" href=\"profile.php?u=".urlencode($username)."\">".utf8entities($username)."</a>";
+        $comment = utf8entities($content['body']);
+        echo($userlink.':'.utf8entities($content['body'])."<i>$elapsed ago</i><br>");
+    }
+}
 
 function showPost($id) {
     $r = redisLink();
@@ -100,8 +113,44 @@ function showPost($id) {
     $elapsed = strElapsed($post['time']);
     $userlink = "<a class=\"username\" href=\"profile.php?u=".urlencode($username)."\">".utf8entities($username)."</a>";
 
-    echo('<div class="post">'.$userlink.' '.utf8entities($post['body'])."<br>");
-    echo('<i>posted '.$elapsed.' ago via web</i></div>');
+    echo('<div class="post">'.$userlink."<i> $elapsed ago</i><br>");
+    echo utf8entities($post['body']);
+    $ref = $post['ref'];
+    while($ref!=-1)
+    {
+        $refpost=$r->hgetall("post:$ref");
+        $refuserid = $refpost['user_id'];
+        $refusername = $r->hget("user:$refuserid","username");
+        $refuserlink = "<a class=\"username\" href=\"profile.php?u=".urlencode($refusername)."\">".utf8entities($refusername)."</a>";        
+        $refstatus = utf8entities($refpost['body']);
+        $ref = $refpost['ref'];
+        if($ref!=-1)
+            echo('&nbsp||&nbsp'.$refuserlink.':'.$refstatus);
+        else
+            echo('<div class="repost">'.$refuserlink."<i> $elapsed ago</i><br>".$refstatus.'</div>');
+    }
+
+
+    ?>
+    <form method="POST">
+        <table>
+            <tr>
+                <td>
+                    <textarea cols="70" rows="2" name="body"></textarea>
+                    <input type="hidden" name="postid" value="<?=$id?>">
+                </td>
+            </tr>
+            <tr>
+                <td align="right">
+                    <input type="submit" formaction="post.php" value="repost">
+                    <input type="submit" formaction="comment.php" value="comment">
+                </td>
+            </tr>
+        </table>
+    </form>
+    <?php
+    showComments($id);
+    echo '</div>';
     return true;
 }
 

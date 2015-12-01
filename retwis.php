@@ -161,4 +161,37 @@ function showUsers($userid_arr)
     echo("</tr>");
     echo("</table>");
 }
+//$arr1 and $arr2 are both descending list
+function OrderedListUnion($arr1,$arr2)
+{
+    $rs = array();
+    $len1=count($arr1);
+    $len2=count($arr2);
+    for($k=$i=$j=0;$k<1000&&$i<$len1&&$j<$len2;$k++)
+    {
+        if($arr1[$i]>=$arr2[$j])
+            $rs[]=$arr1[$i++];
+        else
+            $rs[]=$arr2[$j++];
+        $k++;
+    }
+    while($k++<1000&&$i<$len1)
+        $rs[]=$arr1[$i++];
+    while($k++<1000&&$j<$len2)
+        $rs[]=$arr2[$j++];
+    return $rs;
+}
+function OrderedListDiff($arr1,$arr2)
+{
+    $rs=array();
+    $len1=count($arr1);
+    for($i=0;$i<$len1;$i++)
+    {
+        if($arr1[$i]==current($arr2))
+            next($arr2);
+        else
+            $rs[]=$arr1[$i];
+    }
+    return $rs;
+}
 ?>
